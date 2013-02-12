@@ -1,0 +1,49 @@
+// Simple OSHPark price calculator
+// Author: Antti Kupila / supernode
+// http://supernode.io
+// http://anttikupla.com
+
+// Feel free to do whatever you want with this. I take 0 responsibility for the accuracy of this.. :)
+
+#usage "Calculates board price when ordered from OSHPark.com\n"
+	   "Usage: RUN OSHPark.ulp"
+
+real SQ_INCH_PRICE = 5.0; // $5 per square inch
+
+if (!board)
+{
+	dlgMessageBox("Please run the script in the board editor.");
+	exit(1);
+} else {
+	board(B) {
+
+		int maxX = INT_MIN;
+		int minX = INT_MAX;
+		int maxY = INT_MIN;
+		int minY = INT_MAX;
+
+		// Find max board size
+		B.wires(W) {
+			if (W.layer == 20) {
+				if (W.x1 < minX) minX = W.x1;
+				if (W.x2 < minX) minX = W.x2;
+				if (W.x1 > maxX) maxX = W.x1;
+				if (W.x2 > maxX) maxX = W.x2;
+				if (W.y1 < minY) minY = W.y1;
+				if (W.y2 < minY) minY = W.y2;
+				if (W.y1 > maxY) maxY = W.y1;
+				if (W.y2 > maxY) maxY = W.y2;
+			}
+		}
+
+		real w = (u2inch(maxX) - u2inch(minX));
+		real h = (u2inch(maxY) - u2inch(minY));
+		real wMM = (u2mm(maxX) - u2mm(minX));
+		real hMM = (u2mm(maxY) - u2mm(minY));
+		real price = w * h * SQ_INCH_PRICE;
+
+		string msg;
+		sprintf(msg, "Size: %.2fx%.2f inches (%.1fx%.1fmm)\n\nOSHPark Price: $%.1f (+ shipping)", w, h, wMM, hMM, price);
+		dlgMessageBox(msg);
+	}
+}
